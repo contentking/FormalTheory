@@ -1,8 +1,8 @@
 <?php
 namespace FormalTheory\RegularExpression\Token;
 
+use FormalTheory\RegularExpression\Expression;
 use FormalTheory\RegularExpression\Token;
-use FormalTheory\RegularExpression\Match;
 
 class Constant extends Token
 {
@@ -68,7 +68,7 @@ class Constant extends Token
     function getMatches()
     {
         return array(
-            Match::createFromString($this->_string)
+            Expression::createFromString($this->_string)
         );
     }
 

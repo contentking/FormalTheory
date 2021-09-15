@@ -1,8 +1,8 @@
 <?php
 namespace FormalTheory\RegularExpression\Token;
 
+use FormalTheory\RegularExpression\Expression;
 use FormalTheory\RegularExpression\Token;
-use FormalTheory\RegularExpression\Match;
 
 class Special extends Token
 {
@@ -42,7 +42,7 @@ class Special extends Token
         );
         $function_name = $lookup[$this->_special];
         return array(
-            Match::$function_name()
+            Expression::$function_name()
         );
     }
 

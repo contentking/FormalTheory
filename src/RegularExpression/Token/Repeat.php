@@ -1,8 +1,8 @@
 <?php
 namespace FormalTheory\RegularExpression\Token;
 
+use FormalTheory\RegularExpression\Expression;
 use FormalTheory\RegularExpression\Token;
-use FormalTheory\RegularExpression\Match;
 
 class Repeat extends Token
 {
@@ -72,7 +72,7 @@ class Repeat extends Token
 
     function getMatches()
     {
-        $empty_match = Match::createFromString("");
+        $empty_match = Expression::createFromString("");
         $token_matches = $this->_token->getMatches();
         $output = array();
         if (is_null($this->_second_number)) {

@@ -1,7 +1,7 @@
 <?php
 namespace FormalTheory\RegularExpression;
 
-class Match
+class Expression
 {
 
     private $_has_bos = FALSE;

@@ -35,7 +35,7 @@ abstract class Token
         $output = array();
         foreach ($match_array1 as $match1) {
             foreach ($match_array2 as $match2) {
-                $result = Match::join($match1, $match2);
+                $result = Expression::join($match1, $match2);
                 if ($result === FALSE)
                     continue;
                 $output[] = $result;

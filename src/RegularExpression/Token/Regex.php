@@ -1,8 +1,8 @@
 <?php
 namespace FormalTheory\RegularExpression\Token;
 
+use FormalTheory\RegularExpression\Expression;
 use FormalTheory\RegularExpression\Token;
-use FormalTheory\RegularExpression\Match;
 
 class Regex extends Token
 {
@@ -40,7 +40,7 @@ class Regex extends Token
     function getMatches()
     {
         $matches = array(
-            Match::createFromString("")
+            Expression::createFromString("")
         );
         foreach ($this->_token_array as $token) {
             $matches = self::crossProductMatchArray($matches, $token->getMatches());

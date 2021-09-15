@@ -1,8 +1,8 @@
 <?php
 namespace FormalTheory\RegularExpression\Token;
 
+use FormalTheory\RegularExpression\Expression;
 use FormalTheory\RegularExpression\Token;
-use FormalTheory\RegularExpression\Match;
 
 class Set extends Token
 {
@@ -153,7 +153,7 @@ class Set extends Token
     function getMatches()
     {
         return array_map(function ($char) {
-            return Match::createFromString($char);
+            return Expression::createFromString($char);
         }, $this->charArray());
     }
 
