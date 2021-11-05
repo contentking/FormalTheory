@@ -56,7 +56,7 @@ abstract class Token
             return $state;
         };
         
-        $fa = new FiniteAutomata(array_map("chr", range(0, 127)));
+        $fa = new FiniteAutomata(array_map("chr", range(0, 255)));
         
         $start_states = $fa->createStates(4);
         $end_states = $fa->createStates(4);
