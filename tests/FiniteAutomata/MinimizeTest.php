@@ -3,7 +3,7 @@ namespace FormalTheory\Tests\FiniteAutomata;
 
 use FormalTheory\FiniteAutomata;
 
-class MinimizeTest extends \PHPUnit_Framework_TestCase
+class MinimizeTest extends \PhpUnit\Framework\TestCase
 {
 
     function testBookExample()
@@ -95,5 +95,3 @@ class MinimizeTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(2, $fa->count());
     }
 }
-
-?>

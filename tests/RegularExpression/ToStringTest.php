@@ -3,7 +3,7 @@ namespace FormalTheory\Tests\RegularExpression;
 
 use FormalTheory\RegularExpression\Lexer;
 
-class ToStringTest extends \PHPUnit_Framework_TestCase
+class ToStringTest extends \PhpUnit\Framework\TestCase
 {
 
     function dataProviderForTestSimpleRead()
@@ -181,5 +181,3 @@ class ToStringTest extends \PHPUnit_Framework_TestCase
         // $this->assertTrue( $regex->getDFA()->compare( $regex_after_tostring->getDFA() ) );
     }
 }
-
-?>

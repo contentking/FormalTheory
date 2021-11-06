@@ -2,8 +2,9 @@
 namespace FormalTheory\Tests\FiniteAutomata;
 
 use FormalTheory\FiniteAutomata;
+use PHPUnit\Framework\TestCase;
 
-class BasicTest extends \PHPUnit_Framework_TestCase
+class BasicTest extends TestCase
 {
 
     function dataProviderForTestBasic()
@@ -124,5 +125,3 @@ class BasicTest extends \PHPUnit_Framework_TestCase
         }
     }
 }
-
-?>

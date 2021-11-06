@@ -3,7 +3,7 @@ namespace FormalTheory\Tests\FiniteAutomata;
 
 use FormalTheory\FiniteAutomata;
 
-class CompareTest extends \PHPUnit_Framework_TestCase
+class CompareTest extends \PhpUnit\Framework\TestCase
 {
 
     function testBasic()
@@ -34,5 +34,3 @@ class CompareTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($dfa1->compare($dfa2));
     }
 }
-
-?>

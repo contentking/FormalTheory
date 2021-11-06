@@ -4,7 +4,7 @@ namespace FormalTheory\Tests\RegularExpression;
 use FormalTheory\RegularExpression\Lexer;
 use FormalTheory\FiniteAutomata;
 
-class DoesIntersectTest extends \PHPUnit_Framework_TestCase
+class DoesIntersectTest extends \PhpUnit\Framework\TestCase
 {
 
     function dataProviderForTestDoesIntersect()
@@ -160,5 +160,3 @@ class DoesIntersectTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected_does_intersect, FiniteAutomata::intersection($nfa2, $nfa1)->validSolutionExists());
     }
 }
-
-?>

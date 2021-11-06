@@ -9,7 +9,7 @@ use FormalTheory\RegularExpression\Token\Repeat;
 use FormalTheory\RegularExpression\Exception\LexException;
 use FormalTheory\RegularExpression\Token\Union;
 
-class LexTest extends \PHPUnit_Framework_TestCase
+class LexTest extends \PhpUnit\Framework\TestCase
 {
 
     function dataProviderForTestLex()
@@ -209,10 +209,9 @@ class LexTest extends \PHPUnit_Framework_TestCase
      */
     function testLexFailure($regex, $exception_class, $exception_message)
     {
-        $this->setExpectedException($exception_class, $exception_message);
+        $this->expectException($exception_class);
+        $this->expectExceptionMessage($exception_message);
         $lexer = new Lexer();
         $lexer->lex($regex);
     }
 }
-
-?>

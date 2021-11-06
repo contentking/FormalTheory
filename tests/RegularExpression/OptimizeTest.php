@@ -4,7 +4,7 @@ namespace FormalTheory\Tests\RegularExpression;
 use FormalTheory\RegularExpression\Lexer;
 use FormalTheory\RegularExpression\Optimizer;
 
-class OptimizeTest extends \PHPUnit_Framework_TestCase
+class OptimizeTest extends \PhpUnit\Framework\TestCase
 {
 
     function dataProviderForTestSimpleRead()
@@ -235,5 +235,3 @@ class OptimizeTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected_string, (string) $optimized_regex);
     }
 }
-
-?>

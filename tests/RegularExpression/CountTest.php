@@ -3,7 +3,7 @@ namespace FormalTheory\Tests\RegularExpression;
 
 use FormalTheory\RegularExpression\Lexer;
 
-class CountTest extends \PHPUnit_Framework_TestCase
+class CountTest extends \PhpUnit\Framework\TestCase
 {
 
     function dataProviderForTestSimpleCount()
@@ -62,5 +62,3 @@ class CountTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($dfa->countSolutions(), $expected_solution_count);
     }
 }
-
-?>

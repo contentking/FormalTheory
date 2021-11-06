@@ -3,7 +3,7 @@ namespace FormalTheory\Tests\RegularExpression;
 
 use FormalTheory\RegularExpression\Lexer;
 
-class SubsetTest extends \PHPUnit_Framework_TestCase
+class SubsetTest extends \PhpUnit\Framework\TestCase
 {
 
     function dataProviderForTestSubset()
@@ -145,5 +145,3 @@ class SubsetTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($nfa1->isProperSubsetOf($nfa2), $expected_result);
     }
 }
-
-?>

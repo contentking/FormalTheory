@@ -3,7 +3,7 @@ namespace FormalTheory\Tests\RegularExpression;
 
 use FormalTheory\RegularExpression\Lexer;
 
-class MatchTest extends \PHPUnit_Framework_TestCase
+class MatchTest extends \PhpUnit\Framework\TestCase
 {
 
     function dataProviderForTestSimpleRead()
@@ -454,10 +454,9 @@ class MatchTest extends \PHPUnit_Framework_TestCase
     {
         $lexer = new Lexer();
         $regex = $lexer->lex($regex_string);
-        
-        $this->setExpectedException($exception_class, $exception_message);
+
+        $this->expectException($exception_class);
+        $this->expectExceptionMessage($exception_message);
         $regex->getMatches();
     }
 }
-
-?>
