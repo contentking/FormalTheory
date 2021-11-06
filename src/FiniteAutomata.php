@@ -637,7 +637,7 @@ EOT;
         return $this->isSubsetOf($fa) && $fa->isSubsetOf($this);
     }
 
-    function countSolutions(): int
+    function countSolutions(): ?int
     {
         if (!$this->isDeterministic()) {
             throw new \Exception("fa must be deterministic");
