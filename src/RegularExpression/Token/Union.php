@@ -12,7 +12,7 @@ class Union extends Token
     {
         foreach ($regex_array as $regex) {
             if (! $regex instanceof Token) {
-                throw new RuntimeException("union can only take tokens: " . var_export($regex, TRUE));
+                throw new \RuntimeException("union can only take tokens: " . var_export($regex, TRUE));
             }
         }
         $this->_regex_array = array_values($regex_array);
@@ -85,5 +85,3 @@ class Union extends Token
         return count($token_done) === count($token->_regex_array);
     }
 }
-
-?>

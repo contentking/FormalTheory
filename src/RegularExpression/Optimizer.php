@@ -1,12 +1,16 @@
 <?php
 namespace FormalTheory\RegularExpression;
 
+use Closure;
 use FormalTheory\RegularExpression\Token\Regex;
 use FormalTheory\RegularExpression\Token\Union;
 use FormalTheory\RegularExpression\Token\Repeat;
 use FormalTheory\RegularExpression\Token\Special;
 use FormalTheory\RegularExpression\Token\Constant;
 use FormalTheory\RegularExpression\Token\Set;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RegexIterator;
 
 class Optimizer
 {
@@ -25,8 +29,8 @@ class Optimizer
             return substr($string, $prefix_length);
         };
         $folder_path = realpath(__DIR__ . "/Optimizer/{$prefix}");
-        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($folder_path));
-        $iterator = new \RegexIterator($iterator, '/^(.+)\.php$/i', \RecursiveRegexIterator::GET_MATCH);
+        $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($folder_path));
+        $iterator = new RegexIterator($iterator, '/^(.+)\.php$/i', RegexIterator::GET_MATCH);
         $classes = array();
         foreach ($iterator as $file) {
             $classes[] = "FormalTheory\\RegularExpression\\Optimizer\\{$prefix}\\" . str_replace("/", "\\", $removePrefix($folder_path . "/", $file[1]));
@@ -132,14 +136,14 @@ class Optimizer
 
     function mutate(Token $token)
     {
-        $lazy_array = new FormalTheory_Utility_LazyArray();
+        $lazy_array = new \FormalTheory\Utility\LazyArray();
         $this->_mutate($token, $lazy_array, function ($token) {
             return $token;
         });
         return $lazy_array;
     }
 
-    private function _mutate(Token $token, FormalTheory_Utility_LazyArray $lazy_array, Closure $build_full_regex)
+    private function _mutate(Token $token, \FormalTheory\Utility\LazyArray $lazy_array, Closure $build_full_regex)
     {
         $token_class = get_class($token);
         if (array_key_exists($token_class, $this->_mutation_by_qualified_class_name)) {
@@ -207,5 +211,3 @@ class Optimizer
         return $count;
     }
 }
-
-?>

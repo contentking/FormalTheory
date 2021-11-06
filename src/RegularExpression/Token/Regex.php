@@ -15,7 +15,7 @@ class Regex extends Token
     {
         foreach ($token_array as $token) {
             if (! $token instanceof Token) {
-                throw new RuntimeException("regex can only take token: " . var_export($token, TRUE));
+                throw new \RuntimeException("regex can only take token: " . var_export($token, TRUE));
             }
         }
         $this->_token_array = array_values($token_array);
@@ -92,5 +92,3 @@ class Regex extends Token
         return TRUE;
     }
 }
-
-?>

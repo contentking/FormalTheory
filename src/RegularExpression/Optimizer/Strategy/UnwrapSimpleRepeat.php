@@ -20,7 +20,7 @@ class UnwrapSimpleRepeat extends Strategy
     function qualifiedClassNames()
     {
         return array(
-            Repeat::class
+            Token\Repeat::class
         );
     }
 
@@ -43,5 +43,3 @@ class UnwrapSimpleRepeat extends Strategy
         throw new \RuntimeException("should never happen");
     }
 }
-
-?>

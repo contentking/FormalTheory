@@ -69,14 +69,14 @@ class Set extends Token
         if (array_key_exists(strtolower($group_char), $groups)) {
             return new self($groups[strtolower($group_char)], FALSE);
         }
-        throw new RuntimeException("bad \$group_char");
+        throw new \RuntimeException("bad \$group_char");
     }
 
     function __construct(array $char_array, $is_positive)
     {
         foreach ($char_array as $char) {
             if (! is_string($char) || strlen($char) !== 1) {
-                throw new Exception("non-char found in char array");
+                throw new \Exception("non-char found in char array");
             }
         }
         sort($char_array);
@@ -173,5 +173,3 @@ class Set extends Token
         return $this->charArray() === $token->charArray();
     }
 }
-
-?>

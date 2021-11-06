@@ -118,7 +118,7 @@ class State
             case 1:
                 return current($transitions);
             default:
-                throw new Runtime\Exception("expected only 1 transition for symbol");
+                throw new \RuntimeException("expected only 1 transition for symbol");
         }
     }
 
@@ -188,5 +188,3 @@ class State
         ;
     }
 }
-
-?>

@@ -24,7 +24,7 @@ class Special extends Token
     function __construct($special)
     {
         if (! in_array($special, self::getList())) {
-            throw new RuntimeException("bad special");
+            throw new \RuntimeException("bad special");
         }
         $this->_special = $special;
     }
@@ -71,7 +71,7 @@ class Special extends Token
                     $start_states[3]->addTransition("", $end_states[3]);
                     break;
                 default:
-                    throw new Exception("should be unreachable");
+                    throw new \Exception("should be unreachable");
             }
         };
     }
@@ -81,5 +81,3 @@ class Special extends Token
         return $this->_special === $token->_special;
     }
 }
-
-?>

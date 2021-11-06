@@ -1,7 +1,13 @@
 <?php
+
 namespace FormalTheory;
 
 use FormalTheory\FiniteAutomata\State;
+use FormalTheory\RegularExpression\Token\Constant;
+use FormalTheory\RegularExpression\Token\Regex;
+use FormalTheory\RegularExpression\Token\Repeat;
+use FormalTheory\RegularExpression\Token\Special;
+use FormalTheory\RegularExpression\Token\Union;
 
 class FiniteAutomata
 {
@@ -55,7 +61,7 @@ class FiniteAutomata
     function createStates($n)
     {
         $output = array();
-        for ($i = 0; $i < $n; $i ++) {
+        for ($i = 0; $i < $n; $i++) {
             $output[] = self::createState();
         }
         return $output;
@@ -89,7 +95,7 @@ class FiniteAutomata
         foreach ($this->_states as $state) {
             if ($state === $this->_start_state)
                 continue;
-            $symbol_lookup[$state->getHash()] = ($i ++) . ($state->getIsFinal() ? "*" : "");
+            $symbol_lookup[$state->getHash()] = ($i++) . ($state->getIsFinal() ? "*" : "");
         }
         $output = "";
         foreach ($this->_states as $state) {
@@ -112,14 +118,14 @@ class FiniteAutomata
         $final_state_string = "";
         $non_final_state_string = "";
         $transition_string = "";
-        
+
         $i = 1;
         $symbol_lookup = array();
         $symbol_lookup[$this->_start_state->getHash()] = "S";
         foreach ($this->_states as $state) {
             if ($state === $this->_start_state)
                 continue;
-            $symbol_lookup[$state->getHash()] = ($i ++);
+            $symbol_lookup[$state->getHash()] = ($i++);
         }
         foreach ($symbol_lookup as $hash => $id_string) {
             if ($this->_states[$hash]->getIsFinal()) {
@@ -128,13 +134,13 @@ class FiniteAutomata
                 $non_final_state_string .= $id_string . " ";
             }
         }
-        
+
         foreach ($this->_states as $state) {
             $transition_lookup_array = $state->getTransitionLookupArray();
             if ($transition_lookup_array) {
                 foreach ($transition_lookup_array as $transition_symbol => $next_states) {
                     foreach ($next_states as $next_state) {
-                        $transition_symbol_string = $transition_symbol === "" ? self::LAMBDA_TRANSITION : str_replace("\\", "\\\\", RegularExpression_Token_Constant::escapeChar((string) $transition_symbol));
+                        $transition_symbol_string = $transition_symbol === "" ? self::LAMBDA_TRANSITION : str_replace("\\", "\\\\", Constant::escapeChar((string)$transition_symbol));
                         $transition_string .= <<<EOT
 {$symbol_lookup[$state->getHash()]} -> {$symbol_lookup[$next_state->getHash()]} [ label = "$transition_symbol_string" ];
 
@@ -170,7 +176,7 @@ EOT;
             list ($current_state, $recently_visited_states, $remaining_symbols) = array_pop($stack);
             $recently_visited_states[$current_state->getHash()] = $current_state;
             foreach ($current_state->transitions("") as $next_state_hash => $next_state) {
-                if (! array_key_exists($next_state_hash, $recently_visited_states)) {
+                if (!array_key_exists($next_state_hash, $recently_visited_states)) {
                     array_push($stack, array(
                         $next_state,
                         $recently_visited_states,
@@ -188,7 +194,7 @@ EOT;
                         $remaining_symbols
                     ));
                 }
-            } else 
+            } else
                 if ($current_state->getIsFinal()) {
                     return TRUE;
                 }
@@ -198,7 +204,7 @@ EOT;
 
     function compileMatcher()
     {
-        if (! $this->isDeterministic()) {
+        if (!$this->isDeterministic()) {
             throw new \Exception("must be deterministic");
         }
         $lookup_arrays = array_map(function ($state) {
@@ -209,18 +215,18 @@ EOT;
                 }, $state->getTransitionLookupArray())
             );
         }, $this->_states);
-        
+
         foreach ($lookup_arrays as $state_hash => &$state_info) {
             foreach ($state_info[1] as $transition_symbol => $transition_state_hash) {
                 $state_info[1][$transition_symbol] = &$lookup_arrays[$transition_state_hash];
             }
         }
-        
+
         $current_state = $lookup_arrays[$this->getStartState()->getHash()];
-        
-        return function (array $symbol_array) use($current_state) {
+
+        return function (array $symbol_array) use ($current_state) {
             foreach ($symbol_array as $symbol) {
-                if (! isset($current_state[1][$symbol]))
+                if (!isset($current_state[1][$symbol]))
                     return FALSE;
                 $current_state = $current_state[1][$symbol];
             }
@@ -231,9 +237,9 @@ EOT;
     function removeDeadStates()
     {
         $down_visited_states = new \SplObjectStorage();
-        
+
         $get_walk_closure = function ($visited_states) {
-            return function ($transition_symbol, $next_state) use($visited_states) {
+            return function ($transition_symbol, $next_state) use ($visited_states) {
                 if ($visited_states->contains($next_state)) {
                     return FiniteAutomata::WALK_SKIP;
                 }
@@ -241,17 +247,17 @@ EOT;
                 return FiniteAutomata::WALK_TRAVERSE;
             };
         };
-        
+
         $this->getStartState()->walkWithClosure($get_walk_closure($down_visited_states), self::WALK_TYPE_DFS, self::WALK_DIRECTION_DOWN, NULL, TRUE);
-        
+
         $up_visited_states = new \SplObjectStorage();
         $up_walk_closure = $get_walk_closure($up_visited_states);
-        array_map(function ($final_state) use($up_walk_closure) {
+        array_map(function ($final_state) use ($up_walk_closure) {
             $final_state->walkWithClosure($up_walk_closure, FiniteAutomata::WALK_TYPE_DFS, FiniteAutomata::WALK_DIRECTION_UP, NULL, TRUE);
         }, array_filter($this->_states, function ($state) {
             return $state->getIsFinal();
         }));
-        
+
         $visited_states = new \SplObjectStorage();
         foreach ($down_visited_states as $state) {
             if ($up_visited_states->contains($state)) {
@@ -259,9 +265,9 @@ EOT;
             }
         }
         $visited_states->attach($this->getStartState());
-        
+
         foreach ($this->_states as $key => $state) {
-            if (! $visited_states->contains($state)) {
+            if (!$visited_states->contains($state)) {
                 $this->_states[$key]->unlink();
                 unset($this->_states[$key]);
             }
@@ -272,7 +278,7 @@ EOT;
     {
         $failure_state = NULL;
         $this_ = $this;
-        $get_failure_state = function () use(&$failure_state, $this_) {
+        $get_failure_state = function () use (&$failure_state, $this_) {
             if (is_null($failure_state)) {
                 $failure_state = $this_->createState();
                 foreach ($this_->getAlphabet() as $symbol) {
@@ -283,7 +289,7 @@ EOT;
         };
         foreach ($this->_states as $state) {
             foreach ($this->_alphabet as $symbol) {
-                if (! $state->transitions($symbol)) {
+                if (!$state->transitions($symbol)) {
                     $state->addTransition($symbol, $get_failure_state());
                 }
             }
@@ -294,8 +300,8 @@ EOT;
     {
         $valid_solution_exists = FALSE;
         $visited_states = new \SplObjectStorage();
-        
-        $this->getStartState()->walkWithClosure(function ($transition_symbol, $next_state) use($visited_states, &$valid_solution_exists) {
+
+        $this->getStartState()->walkWithClosure(function ($transition_symbol, $next_state) use ($visited_states, &$valid_solution_exists) {
             if ($next_state->getIsFinal()) {
                 $valid_solution_exists = TRUE;
                 return FiniteAutomata::WALK_EXIT;
@@ -306,7 +312,7 @@ EOT;
             $visited_states->attach($next_state);
             return FiniteAutomata::WALK_TRAVERSE;
         }, self::WALK_TYPE_BFS, self::WALK_DIRECTION_DOWN, NULL, TRUE);
-        
+
         return $valid_solution_exists;
     }
 
@@ -325,7 +331,7 @@ EOT;
             $new_state = $translation_lookup[$state->getHash()];
             foreach ($state->getTransitionLookupArray() as $transition_symbol => $next_states) {
                 foreach ($next_states as $next_state) {
-                    $new_state->addTransition((string) $transition_symbol, $translation_lookup[$next_state->getHash()]);
+                    $new_state->addTransition((string)$transition_symbol, $translation_lookup[$next_state->getHash()]);
                 }
             }
         }
@@ -334,21 +340,21 @@ EOT;
 
     function minimize()
     {
-        if (! $this->isDeterministic()) {
+        if (!$this->isDeterministic()) {
             throw new \Exception("fa must be deterministic");
         }
-        
+
         $this->removeDeadStates();
-        
+
         $duplicate_state_hash_array = self::_getDuplicateStateHashArray($this->_states, $this->_alphabet);
-        
+
         foreach ($duplicate_state_hash_array as $duplicate_state_hashes) {
             $main_state = $this->_states[array_pop($duplicate_state_hashes)];
             foreach ($duplicate_state_hashes as $duplicate_state_hash) {
                 $duplicate_state = $this->_states[$duplicate_state_hash];
                 foreach ($duplicate_state->getTransitionRefArray() as $transition_symbol => $prev_states) {
                     foreach ($prev_states as $prev_state) {
-                        $prev_state->addTransition((string) $transition_symbol, $main_state);
+                        $prev_state->addTransition((string)$transition_symbol, $main_state);
                     }
                 }
                 if ($this->getStartState()->getHash() === $duplicate_state->getHash()) {
@@ -365,12 +371,12 @@ EOT;
         $closure_array = array();
         foreach ($this->_states as $state) {
             $transition_lookup_array = $state->getTransitionLookupArray();
-            $closure_array[] = function () use($transition_lookup_array, $state) {
+            $closure_array[] = function () use ($transition_lookup_array, $state) {
                 foreach ($transition_lookup_array as $transition_symbol => $next_states) {
                     foreach ($next_states as $next_state) {
                         if ($state->getHash() !== $next_state->getHash()) {
-                            $state->deleteTransition((string) $transition_symbol, $next_state);
-                            $next_state->addTransition((string) $transition_symbol, $state);
+                            $state->deleteTransition((string)$transition_symbol, $next_state);
+                            $next_state->addTransition((string)$transition_symbol, $state);
                         }
                     }
                 }
@@ -379,12 +385,12 @@ EOT;
         foreach ($closure_array as $closure) {
             $closure();
         }
-        
+
         $start_state = $this->getStartState();
         $new_start_state = $this->createState();
         $this->setStartState($new_start_state);
         foreach ($this->_states as $state) {
-            if (! $state->getIsFinal())
+            if (!$state->getIsFinal())
                 continue;
             $new_start_state->addTransition("", $state);
             $state->setIsFinal(FALSE);
@@ -395,7 +401,7 @@ EOT;
     function isDeterministic()
     {
         foreach ($this->_states as $state) {
-            if (! $state->isDeterministic()) {
+            if (!$state->isDeterministic()) {
                 return FALSE;
             }
         }
@@ -408,12 +414,12 @@ EOT;
             throw new \Exception("already deterministic");
         }
         $fa = new self($finite_automata->getAlphabet());
-        
+
         $reachable_without_transition_array = array_map(function ($state) {
             $reachable_without_transition = array(
                 $state
             );
-            $state->walkWithClosure(function ($transition_symbol, $next_state) use(&$reachable_without_transition) {
+            $state->walkWithClosure(function ($transition_symbol, $next_state) use (&$reachable_without_transition) {
                 if (in_array($next_state, $reachable_without_transition, TRUE) || $transition_symbol !== "") {
                     return FiniteAutomata::WALK_SKIP;
                 }
@@ -422,8 +428,8 @@ EOT;
             }, FiniteAutomata::WALK_TYPE_DFS, FiniteAutomata::WALK_DIRECTION_DOWN);
             return $reachable_without_transition;
         }, $finite_automata->_states);
-        
-        $reachable_by_transition_array = array_map(function ($state) use($reachable_without_transition_array) {
+
+        $reachable_by_transition_array = array_map(function ($state) use ($reachable_without_transition_array) {
             $first_level_transition_lookup_arrays = array_map(function ($state) {
                 $transition_lookup_array = $state->getTransitionLookupArray();
                 unset($transition_lookup_array[""]);
@@ -432,7 +438,7 @@ EOT;
             $reachable_by_symbol = array();
             foreach ($first_level_transition_lookup_arrays as $first_level_transition_lookup_array) {
                 foreach ($first_level_transition_lookup_array as $transition_symbol => $next_states) {
-                    if (! array_key_exists($transition_symbol, $reachable_by_symbol)) {
+                    if (!array_key_exists($transition_symbol, $reachable_by_symbol)) {
                         $reachable_by_symbol[$transition_symbol] = array();
                     }
                     foreach (array_keys($next_states) as $next_state_hash) {
@@ -442,8 +448,8 @@ EOT;
             }
             return $reachable_by_symbol;
         }, $finite_automata->_states);
-        
-        $calculate_reachable = function (array $states) use($reachable_by_transition_array) {
+
+        $calculate_reachable = function (array $states) use ($reachable_by_transition_array) {
             $merged_reachable_states = array();
             foreach ($states as $state) {
                 foreach ($reachable_by_transition_array[$state->getHash()] as $transition_symbol => $reachable_states) {
@@ -452,14 +458,14 @@ EOT;
             }
             return $merged_reachable_states;
         };
-        
+
         $states_to_process = array();
         $lookup_array = array();
-        $get_meta_state = function (array $states) use(&$lookup_array, &$states_to_process, $fa) {
+        $get_meta_state = function (array $states) use (&$lookup_array, &$states_to_process, $fa) {
             $state_hash_array = array_unique(array_map("spl_object_hash", $states));
             sort($state_hash_array);
             $states_hash = serialize($state_hash_array);
-            if (! array_key_exists($states_hash, $lookup_array)) {
+            if (!array_key_exists($states_hash, $lookup_array)) {
                 $new_state = $fa->createState();
                 $is_final = FALSE;
                 foreach ($states as $current_state) {
@@ -485,10 +491,10 @@ EOT;
             $current_state = $get_meta_state($current_states);
             foreach ($calculate_reachable($current_states) as $transition_symbol => $reachable_states) {
                 $target_state = $get_meta_state($reachable_states);
-                $current_state->addTransition((string) $transition_symbol, $target_state);
+                $current_state->addTransition((string)$transition_symbol, $target_state);
             }
         }
-        
+
         return $fa;
     }
 
@@ -497,7 +503,7 @@ EOT;
         $fa = $finite_automata->isDeterministic() ? clone $finite_automata : self::determinize($finite_automata);
         $fa->addFailureState();
         foreach ($fa->_states as $state) {
-            $state->setIsFinal(! $state->getIsFinal());
+            $state->setIsFinal(!$state->getIsFinal());
         }
         return $fa;
     }
@@ -553,7 +559,7 @@ EOT;
                 foreach ($state1->getTransitionLookupArray() as $transition_symbol => $next_states1) {
                     foreach ($state2->transitions($transition_symbol) as $next_state2) {
                         foreach ($next_states1 as $next_state1) {
-                            $new_state->addTransition((string) $transition_symbol, $translation_lookup[$next_state1->getHash()][$next_state2->getHash()]);
+                            $new_state->addTransition((string)$transition_symbol, $translation_lookup[$next_state1->getHash()][$next_state2->getHash()]);
                         }
                     }
                 }
@@ -570,12 +576,12 @@ EOT;
 
     function isSubsetOf(self $fa)
     {
-        return ! self::intersection($this, self::negate($fa))->validSolutionExists();
+        return !self::intersection($this, self::negate($fa))->validSolutionExists();
     }
 
     function isProperSubsetOf(self $fa)
     {
-        return $this->isSubsetOf($fa) && ! $this->isSupersetOf($fa);
+        return $this->isSubsetOf($fa) && !$this->isSupersetOf($fa);
     }
 
     function isSuperSetOf(self $fa)
@@ -595,10 +601,10 @@ EOT;
 
     function compareByDistinguishable(self $fa)
     {
-        if (! $this->isDeterministic()) {
+        if (!$this->isDeterministic()) {
             throw new \Exception("\$this must be deterministic");
         }
-        if (! $fa->isDeterministic()) {
+        if (!$fa->isDeterministic()) {
             throw new \Exception("\$fa must be deterministic");
         }
         $start_state1 = $this->getStartState()->getHash();
@@ -624,20 +630,20 @@ EOT;
 
     function countSolutions()
     {
-        if (! $this->isDeterministic()) {
+        if (!$this->isDeterministic()) {
             throw new \Exception("fa must be deterministic");
         }
-        
-        if (! $this->validSolutionExists()) {
+
+        if (!$this->validSolutionExists()) {
             return 0;
         }
-        
+
         $state_solutions = array_fill_keys(array_keys($this->_states), NULL);
         do {
             $did_make_change = FALSE;
             $not_done_state_solutions = array_filter($state_solutions, "is_null");
             foreach ($this->_states as $state) {
-                if (! is_null($state_solutions[$state->getHash()]))
+                if (!is_null($state_solutions[$state->getHash()]))
                     continue;
                 $has_not_done_transition = FALSE;
                 foreach ($state->getTransitionLookupArray() as $transition_states) {
@@ -645,10 +651,10 @@ EOT;
                         $has_not_done_transition = TRUE;
                     }
                 }
-                if (! $has_not_done_transition) {
+                if (!$has_not_done_transition) {
                     $did_make_change = TRUE;
                     $done_state_solutions = array_filter($state_solutions, function ($state_solution) {
-                        return ! is_null($state_solution);
+                        return !is_null($state_solution);
                     });
                     $total = $state->getIsFinal() ? 1 : 0;
                     foreach ($state->getTransitionLookupArray() as $transition_states) {
@@ -665,24 +671,24 @@ EOT;
     function getRegex()
     {
         if (array_diff($this->getAlphabet(), array_map("chr", range(0, 127)))) {
-            throw new Logic\Exception("alphabet contain non-regex symbols");
+            throw new \LogicException("alphabet contain non-regex symbols");
         }
         $empty_table = array_fill_keys(array_merge(array_keys($this->_states), array(
             "final"
         )), array());
-        $inverse_lookup_array = function ($lookup_array) use($empty_table) {
+        $inverse_lookup_array = function ($lookup_array) use ($empty_table) {
             $table = $empty_table;
             foreach ($lookup_array as $transition => $states) {
                 foreach (array_keys($states) as $state_hash) {
                     $sub_tokens = $transition === "" ? array() : array(
-                        new RegularExpression_Token_Constant((string) $transition)
+                        new Constant((string)$transition)
                     );
-                    $table[$state_hash][] = new RegularExpression_Token_Regex($sub_tokens, TRUE);
+                    $table[$state_hash][] = new Regex($sub_tokens, TRUE);
                 }
             }
             return $table;
         };
-        $transition_map = array_map(function ($state) use($inverse_lookup_array) {
+        $transition_map = array_map(function ($state) use ($inverse_lookup_array) {
             $to_table = $inverse_lookup_array($state->getTransitionLookupArray());
             $from_table = $inverse_lookup_array($state->getTransitionRefArray());
             $self_table = $to_table[$state->getHash()];
@@ -694,9 +700,9 @@ EOT;
                 $self_table
             );
         }, $this->_states);
-        
+
         $start_state_hash = $this->getStartState()->getHash();
-        
+
         // create new unified final state
         $transition_map["final"] = array(
             $empty_table,
@@ -708,10 +714,10 @@ EOT;
         foreach (array_keys(array_filter($this->_states, function ($state) {
             return $state->getIsFinal();
         })) as $final_state_hash) {
-            $transition_map[$final_state_hash][0]["final"][] = new RegularExpression_Token_Regex(array(), TRUE);
-            $transition_map["final"][1][$final_state_hash][] = new RegularExpression_Token_Regex(array(), TRUE);
+            $transition_map[$final_state_hash][0]["final"][] = new Regex(array(), TRUE);
+            $transition_map["final"][1][$final_state_hash][] = new Regex(array(), TRUE);
         }
-        
+
         $build_regex_from_array = function (array $array) {
             switch (count($array)) {
                 case 0:
@@ -719,36 +725,36 @@ EOT;
                 case 1:
                     return $array[0];
                 default:
-                    return new RegularExpression_Token_Union($array);
+                    return new Union($array);
             }
         };
-        
+
         $state_hashes_to_remove = array_diff(array_keys($transition_map), array(
             $start_state_hash,
             "final"
         ));
-        
+
         // Order states to remove by least complex first
-        usort($state_hashes_to_remove, function ($state_hash1, $state_hash2) use($transition_map) {
+        usort($state_hashes_to_remove, function ($state_hash1, $state_hash2) use ($transition_map) {
             $state1_count1 = count(array_filter($transition_map[$state_hash1][0]));
             $state1_count2 = count(array_filter($transition_map[$state_hash1][1]));
             $state1_count3 = count(array_filter($transition_map[$state_hash1][2]));
             $state2_count1 = count(array_filter($transition_map[$state_hash2][0]));
             $state2_count2 = count(array_filter($transition_map[$state_hash2][1]));
             $state2_count3 = count(array_filter($transition_map[$state_hash2][2]));
-            return ($state1_count1 + $state1_count2 + $state1_count3) > ($state2_count1 + $state2_count2 + $state2_count3) ? 1 : - 1;
+            return ($state1_count1 + $state1_count2 + $state1_count3) > ($state2_count1 + $state2_count2 + $state2_count3) ? 1 : -1;
         });
-        
+
         foreach ($state_hashes_to_remove as $state_hash_to_remove) {
             foreach ($transition_map[$state_hash_to_remove][0] as $next_state_hash => $next_transitions) {
                 foreach ($transition_map[$state_hash_to_remove][1] as $prev_state_hash => $prev_transitions) {
-                    if (! $next_transitions || ! $prev_transitions)
+                    if (!$next_transitions || !$prev_transitions)
                         continue;
                     $middle_regex = $build_regex_from_array($transition_map[$state_hash_to_remove][2]);
-                    $new_path = new RegularExpression_Token_Regex(array(
+                    $new_path = new Regex(array(
                         $build_regex_from_array($prev_transitions),
-                        (is_null($middle_regex) ? new RegularExpression_Token_Regex(array(), TRUE) : new RegularExpression_Token_Regex(array(
-                            new RegularExpression_Token_Repeat($middle_regex, 0)
+                        (is_null($middle_regex) ? new Regex(array(), TRUE) : new Regex(array(
+                            new Repeat($middle_regex, 0)
                         ), TRUE)),
                         $build_regex_from_array($next_transitions)
                     ), TRUE);
@@ -770,29 +776,29 @@ EOT;
         $finish_to_finsh = $build_regex_from_array($transition_map["final"][2]);
         $start_to_finish = $build_regex_from_array($transition_map[$start_state_hash][0]["final"]);
         $finish_to_start = $build_regex_from_array($transition_map["final"][0][$start_state_hash]);
-        
+
         if (is_null($start_to_finish)) {
-            throw new Logic\Exception("DFA has no valid solutions");
+            throw new \LogicException("DFA has no valid solutions");
         }
         $main_pipe_regex = array();
-        if (! is_null($start_to_start)) {
-            $main_pipe_regex[] = new RegularExpression_Token_Repeat($start_to_start, 0);
+        if (!is_null($start_to_start)) {
+            $main_pipe_regex[] = new Repeat($start_to_start, 0);
         }
         $main_pipe_regex[] = $start_to_finish;
-        if (! is_null($finish_to_finsh)) {
-            $main_pipe_regex[] = new RegularExpression_Token_Repeat($finish_to_finsh, 0);
+        if (!is_null($finish_to_finsh)) {
+            $main_pipe_regex[] = new Repeat($finish_to_finsh, 0);
         }
         $output_regex = array(
-            new RegularExpression_Token_Special("^")
+            new Special("^")
         );
-        if (! is_null($start_to_finish) && ! is_null($finish_to_start)) {
-            $output_regex[] = new RegularExpression_Token_Regex(array_merge($main_pipe_regex, array(
+        if (!is_null($start_to_finish) && !is_null($finish_to_start)) {
+            $output_regex[] = new Regex(array_merge($main_pipe_regex, array(
                 $finish_to_start
             )), TRUE);
         }
-        $output_regex[] = new RegularExpression_Token_Regex($main_pipe_regex, TRUE);
-        $output_regex[] = new RegularExpression_Token_Special("$");
-        return new RegularExpression_Token_Regex($output_regex, FALSE);
+        $output_regex[] = new Regex($main_pipe_regex, TRUE);
+        $output_regex[] = new Special("$");
+        return new Regex($output_regex, FALSE);
     }
 
     static private function _getDuplicateStateHashArray(array $states, array $alphabet)
@@ -800,17 +806,17 @@ EOT;
         $states = array_values($states);
         $states[] = NULL; // add dead state
         $alphabet = array_values($alphabet);
-        
+
         $get_pair_hash = function (State $state1 = NULL, State $state2 = NULL) {
             $state1_hash = $state1 ? $state1->getHash() : "<dead_state>";
             $state2_hash = $state2 ? $state2->getHash() : "<dead_state>";
             return $state1_hash > $state2_hash ? "{$state1_hash}_{$state2_hash}" : "{$state2_hash}_{$state1_hash}";
         };
-        
+
         $get_pairs = function (array $array) {
             $pairs = array();
-            for ($i = 1; $i < count($array); $i ++) {
-                for ($j = 0; $j < $i; $j ++) {
+            for ($i = 1; $i < count($array); $i++) {
+                for ($j = 0; $j < $i; $j++) {
                     $pairs[] = array(
                         $array[$i],
                         $array[$j]
@@ -819,15 +825,15 @@ EOT;
             }
             return $pairs;
         };
-        
+
         $state_pairs = $get_pairs($states);
-        $state_pair_hashes = array_map(function ($state_pair) use($get_pair_hash) {
+        $state_pair_hashes = array_map(function ($state_pair) use ($get_pair_hash) {
             list ($state1, $state2) = $state_pair;
             return $get_pair_hash($state1, $state2);
         }, $state_pairs);
         $state_pair_lookup = array_combine($state_pair_hashes, $state_pairs);
         $distinguishable_array = array_fill_keys($state_pair_hashes, array());
-        
+
         $final_states = array();
         $non_final_states = array();
         foreach ($states as $state) {
@@ -837,29 +843,29 @@ EOT;
                 $non_final_states[] = $state;
             }
         }
-        
+
         $mark_distinguishable = NULL;
-        $mark_distinguishable = function ($state1, $state2) use(&$distinguishable_array, $state_pair_lookup, $get_pair_hash, &$mark_distinguishable) {
+        $mark_distinguishable = function ($state1, $state2) use (&$distinguishable_array, $state_pair_lookup, $get_pair_hash, &$mark_distinguishable) {
             $pair_hash = $get_pair_hash($state1, $state2);
             if (is_null($distinguishable_array[$pair_hash])) {
-                throw new Runtime\Exception("already marked");
+                throw new \RuntimeException("already marked");
             }
             $markable_pair_hashes = array_keys($distinguishable_array[$pair_hash]);
             $distinguishable_array[$pair_hash] = NULL;
             foreach ($markable_pair_hashes as $markable_pair_hash) {
-                if (! is_null($distinguishable_array[$markable_pair_hash])) {
+                if (!is_null($distinguishable_array[$markable_pair_hash])) {
                     list ($_state1, $_state2) = $state_pair_lookup[$markable_pair_hash];
                     $mark_distinguishable($_state1, $_state2);
                 }
             }
         };
-        
+
         foreach ($final_states as $final_state) {
             foreach ($non_final_states as $non_final_state) {
                 $mark_distinguishable($final_state, $non_final_state);
             }
         }
-        
+
         foreach (array_merge($get_pairs($final_states), $get_pairs($non_final_states)) as $state_pair) {
             list ($state1, $state2) = $state_pair;
             foreach ($alphabet as $symbol) {
@@ -879,10 +885,10 @@ EOT;
                 }
             }
         }
-        
+
         $equal_pairs = array();
         foreach ($distinguishable_array as $state_pair_hash => $data) {
-            if (! is_null($data)) {
+            if (!is_null($data)) {
                 $equal_pairs[] = $state_pair_lookup[$state_pair_hash];
             }
         }
@@ -896,11 +902,11 @@ EOT;
             $equal_state2_hash = $equal_state2->getHash();
             if (array_key_exists($equal_state1_hash, $state_group_lookup)) {
                 $group_id = $state_group_lookup[$equal_state1_hash];
-            } else 
+            } else
                 if (array_key_exists($equal_state2_hash, $state_group_lookup)) {
                     $group_id = $state_group_lookup[$equal_state2_hash];
                 } else {
-                    $group_id = $i ++;
+                    $group_id = $i++;
                 }
             $state_group_lookup[$equal_state1_hash] = $group_id;
             $state_group_lookup[$equal_state2_hash] = $group_id;
@@ -913,5 +919,3 @@ EOT;
         return $state_groups;
     }
 }
-
-?>

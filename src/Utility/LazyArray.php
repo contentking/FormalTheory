@@ -1,6 +1,11 @@
 <?php
 namespace FormalTheory\Utility;
 
+use ArrayAccess;
+use Closure;
+use Countable;
+use Iterator;
+
 class LazyArray implements ArrayAccess, Iterator, Countable
 {
 
@@ -83,5 +88,3 @@ class LazyArray implements ArrayAccess, Iterator, Countable
         return $this->_size;
     }
 }
-
-?>

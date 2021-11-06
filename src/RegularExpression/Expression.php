@@ -61,5 +61,3 @@ class Expression
         return $match;
     }
 }
-
-?>
