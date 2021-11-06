@@ -339,18 +339,18 @@ class MatchTest extends \PhpUnit\Framework\TestCase
                 $number_range
             ),
             array(
-                "^[\d-n]$",
-                array_merge($number_range, array(
+                "^[-n]$",
+                array(
                     "-",
                     "n"
-                ))
+                )
             ),
             array(
-                "^[ -\d]$",
-                array_merge($number_range, array(
+                "^[ -]$",
+                array(
                     "-",
                     " "
-                ))
+                )
             ),
             array(
                 "^[+--b]$",
