@@ -30,8 +30,10 @@ class FiniteAutomata
 
     private $_alphabet = array();
 
+    /** @var array<State> */
     private $_states = array();
 
+    /** @var State|null */
     private $_start_state = NULL;
 
     function __construct(array $alphabet)
@@ -52,13 +54,17 @@ class FiniteAutomata
         return $this->_alphabet;
     }
 
-    function createState()
+    function createState(): State
     {
         $state = new State($this);
         return $this->_states[$state->getHash()] = $state;
     }
 
-    function createStates($n)
+    /**
+     * @param int $n
+     * @return array<State>
+     */
+    function createStates(int $n): array
     {
         $output = array();
         for ($i = 0; $i < $n; $i++) {
@@ -67,27 +73,30 @@ class FiniteAutomata
         return $output;
     }
 
-    function setStartState(State $state)
+    function setStartState(State $state): void
     {
         $this->_start_state = $state;
     }
 
-    function getStartState()
+    function getStartState(): ?State
     {
         return $this->_start_state;
     }
 
-    function getStates()
+    /**
+     * @return State[]
+     */
+    function getStates(): array
     {
         return $this->_states;
     }
 
-    function count()
+    function count(): int
     {
         return count($this->_states);
     }
 
-    function display()
+    function display(): string
     {
         $i = 1;
         $symbol_lookup = array();
@@ -113,7 +122,7 @@ class FiniteAutomata
         return $output;
     }
 
-    function displayAsDot()
+    function displayAsDot(): string
     {
         $final_state_string = "";
         $non_final_state_string = "";
@@ -163,7 +172,7 @@ EOT;
         return $output;
     }
 
-    function isMatch(array $symbol_array)
+    function isMatch(array $symbol_array): bool
     {
         $stack = array(
             array(
@@ -202,7 +211,7 @@ EOT;
         return FALSE;
     }
 
-    function compileMatcher()
+    function compileMatcher(): callable
     {
         if (!$this->isDeterministic()) {
             throw new \Exception("must be deterministic");
@@ -234,7 +243,7 @@ EOT;
         };
     }
 
-    function removeDeadStates()
+    function removeDeadStates(): void
     {
         $down_visited_states = new \SplObjectStorage();
 
@@ -274,7 +283,7 @@ EOT;
         }
     }
 
-    function addFailureState()
+    function addFailureState(): void
     {
         $failure_state = NULL;
         $this_ = $this;
@@ -296,7 +305,7 @@ EOT;
         }
     }
 
-    function validSolutionExists()
+    function validSolutionExists(): bool
     {
         $valid_solution_exists = FALSE;
         $visited_states = new \SplObjectStorage();
@@ -316,7 +325,7 @@ EOT;
         return $valid_solution_exists;
     }
 
-    function importAutomata(self $finite_automata)
+    function importAutomata(self $finite_automata): State
     {
         if ($finite_automata->getAlphabet() !== $this->getAlphabet()) {
             throw new \Exception("different alphabet");
@@ -338,7 +347,7 @@ EOT;
         return $translation_lookup[$finite_automata->getStartState()->getHash()];
     }
 
-    function minimize()
+    function minimize(): void
     {
         if (!$this->isDeterministic()) {
             throw new \Exception("fa must be deterministic");
@@ -366,7 +375,7 @@ EOT;
         }
     }
 
-    function reverse()
+    function reverse(): void
     {
         $closure_array = array();
         foreach ($this->_states as $state) {
@@ -398,7 +407,7 @@ EOT;
         $start_state->setIsFinal(TRUE);
     }
 
-    function isDeterministic()
+    function isDeterministic(): bool
     {
         foreach ($this->_states as $state) {
             if (!$state->isDeterministic()) {
@@ -408,7 +417,7 @@ EOT;
         return TRUE;
     }
 
-    static function determinize(self $finite_automata)
+    static function determinize(self $finite_automata): self
     {
         if ($finite_automata->isDeterministic()) {
             throw new \Exception("already deterministic");
@@ -498,7 +507,7 @@ EOT;
         return $fa;
     }
 
-    static function negate(self $finite_automata)
+    static function negate(self $finite_automata): self
     {
         $fa = $finite_automata->isDeterministic() ? clone $finite_automata : self::determinize($finite_automata);
         $fa->addFailureState();
@@ -508,7 +517,7 @@ EOT;
         return $fa;
     }
 
-    static function union(self $finite_automata1, self $finite_automata2)
+    static function union(self $finite_automata1, self $finite_automata2): self
     {
         if ($finite_automata1->getAlphabet() !== $finite_automata2->getAlphabet()) {
             throw new \Exception("different alphabet");
@@ -523,12 +532,12 @@ EOT;
         return $fa;
     }
 
-    static function intersection(self $finite_automata1, self $finite_automata2)
+    static function intersection(self $finite_automata1, self $finite_automata2): self
     {
         return self::intersectionByCartesianProductMachine($finite_automata1, $finite_automata2);
     }
 
-    static function intersectionByDeMorgan(self $finite_automata1, self $finite_automata2)
+    static function intersectionByDeMorgan(self $finite_automata1, self $finite_automata2): self
     {
         if ($finite_automata1->getAlphabet() !== $finite_automata2->getAlphabet()) {
             throw new \Exception("different alphabet");
@@ -536,7 +545,7 @@ EOT;
         return self::negate(self::determinize(self::union(self::negate($finite_automata1), self::negate($finite_automata2))));
     }
 
-    static function intersectionByCartesianProductMachine(self $finite_automata1, self $finite_automata2)
+    static function intersectionByCartesianProductMachine(self $finite_automata1, self $finite_automata2): self
     {
         if ($finite_automata1->getAlphabet() !== $finite_automata2->getAlphabet()) {
             throw new \Exception("different alphabet");
@@ -574,32 +583,32 @@ EOT;
         return $fa;
     }
 
-    function isSubsetOf(self $fa)
+    function isSubsetOf(self $fa): bool
     {
         return !self::intersection($this, self::negate($fa))->validSolutionExists();
     }
 
-    function isProperSubsetOf(self $fa)
+    function isProperSubsetOf(self $fa): bool
     {
         return $this->isSubsetOf($fa) && !$this->isSupersetOf($fa);
     }
 
-    function isSuperSetOf(self $fa)
+    function isSuperSetOf(self $fa): bool
     {
         return $fa->isSubsetOf($this);
     }
 
-    function isProperSupersetOf(self $fa)
+    function isProperSupersetOf(self $fa): bool
     {
         return $fa->isProperSubsetOf($this);
     }
 
-    function compare(self $fa)
+    function compare(self $fa): bool
     {
         return $this->isDeterministic() && $fa->isDeterministic() ? $this->compareByDistinguishable($fa) : $this->compareBySubset($fa);
     }
 
-    function compareByDistinguishable(self $fa)
+    function compareByDistinguishable(self $fa): bool
     {
         if (!$this->isDeterministic()) {
             throw new \Exception("\$this must be deterministic");
@@ -623,12 +632,12 @@ EOT;
         return FALSE;
     }
 
-    function compareBySubset(self $fa)
+    function compareBySubset(self $fa): bool
     {
         return $this->isSubsetOf($fa) && $fa->isSubsetOf($this);
     }
 
-    function countSolutions()
+    function countSolutions(): int
     {
         if (!$this->isDeterministic()) {
             throw new \Exception("fa must be deterministic");
@@ -668,7 +677,7 @@ EOT;
         return $state_solutions[$this->getStartState()->getHash()];
     }
 
-    function getRegex()
+    function getRegex(): Regex
     {
         if (array_diff($this->getAlphabet(), array_map("chr", range(0, 127)))) {
             throw new \LogicException("alphabet contain non-regex symbols");
@@ -801,7 +810,7 @@ EOT;
         return new Regex($output_regex, FALSE);
     }
 
-    static private function _getDuplicateStateHashArray(array $states, array $alphabet)
+    static private function _getDuplicateStateHashArray(array $states, array $alphabet): array
     {
         $states = array_values($states);
         $states[] = NULL; // add dead state
