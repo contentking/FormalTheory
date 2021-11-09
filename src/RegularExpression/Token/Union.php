@@ -84,4 +84,34 @@ class Union extends Token
         }
         return count($token_done) === count($token->_regex_array);
     }
+
+    public function getMinLength(): ?int
+    {
+        $min = PHP_INT_MAX;
+        foreach($this->_regex_array as $token) {
+            $minLength = $token->getMinLength();
+            if ($minLength === null) {
+                return null;
+            }
+            if ($minLength < $min) {
+                $min = $minLength;
+            }
+        }
+        return $min;
+    }
+
+    public function getMaxLength(): ?int
+    {
+        $max = 0;
+        foreach($this->_regex_array as $token) {
+            $maxLength = $token->getMaxLength();
+            if ($maxLength === null) {
+                return null;
+            }
+            if ($maxLength > $max) {
+                $max = $maxLength;
+            }
+        }
+        return $max;
+    }
 }

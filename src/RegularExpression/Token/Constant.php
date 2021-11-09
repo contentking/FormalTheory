@@ -85,6 +85,14 @@ class Constant extends Token
     {
         return $this->_string === $token->_string;
     }
-}
 
-?>
+    public function getMinLength(): int
+    {
+        return 1;
+    }
+
+    public function getMaxLength(): int
+    {
+        return 1;
+    }
+}

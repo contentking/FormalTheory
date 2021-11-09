@@ -91,4 +91,32 @@ class Regex extends Token
         }
         return TRUE;
     }
+
+    public function getMinLength(): ?int
+    {
+        $sum = 0;
+        foreach($this->_token_array as $token) {
+            $l = $token->getMinLength();
+            if ($l === null) {
+                return null;
+            }
+            $sum += $l;
+        }
+        return $sum;
+    }
+
+    public function getMaxLength(): ?int
+    {
+        $sum = 0;
+        foreach($this->_token_array as $token) {
+            $l = $token->getMaxLength();
+            if ($l === null) {
+                return null;
+            }
+            $sum += $l;
+        }
+        return $sum;
+    }
+
+
 }

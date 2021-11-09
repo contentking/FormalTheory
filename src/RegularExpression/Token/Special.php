@@ -80,4 +80,16 @@ class Special extends Token
     {
         return $this->_special === $token->_special;
     }
+
+    public function getMinLength(): ?int
+    {
+        return 0;
+    }
+
+    public function getMaxLength(): ?int
+    {
+        return 0;
+    }
+
+
 }

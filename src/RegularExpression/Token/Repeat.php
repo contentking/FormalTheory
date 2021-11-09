@@ -144,6 +144,20 @@ class Repeat extends Token
     {
         return $this->_first_number === $token->_first_number && $this->_second_number === $token->_second_number && $this->_token->compare($token->_token);
     }
-}
 
-?>
+    public function getMinLength(): ?int
+    {
+        if ($this->getMinNumber() === null) {
+            return null;
+        }
+        return $this->_token->getMinLength() * $this->getMinNumber();
+    }
+
+    public function getMaxLength(): ?int
+    {
+        if ($this->getMaxNumber() === null) {
+            return null;
+        }
+        return $this->_token->getMaxLength() * $this->getMaxNumber();
+    }
+}

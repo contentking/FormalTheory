@@ -172,4 +172,14 @@ class Set extends Token
     {
         return $this->charArray() === $token->charArray();
     }
+
+    public function getMinLength(): int
+    {
+        return 1;
+    }
+
+    public function getMaxLength(): int
+    {
+        return 1;
+    }
 }

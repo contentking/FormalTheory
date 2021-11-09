@@ -88,6 +88,14 @@ abstract class Token
         $dfa->minimize();
         return $dfa;
     }
-}
 
-?>
+    /**
+     * @return int|null absolut number of the minimum length and null if unbounded
+     */
+    abstract public function getMinLength(): ?int;
+
+    /**
+     * @return int|null absolut number of the maximum length and null if unbounded
+     */
+    abstract public function getMaxLength(): ?int;
+}
