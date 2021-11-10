@@ -2,7 +2,7 @@
     "name": "c01l/formal-theory",
     "type": "library",
     "description": "FormalTheory is a library that allows for manipulation and conversion of NFAs, DFAs and Regular Expressions.",
-    "version": "2.1.0",
+    "version": "2.2.0",
     "keywords": [
         "formal",
         "theory",

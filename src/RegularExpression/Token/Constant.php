@@ -8,21 +8,28 @@ class Constant extends Token
 {
 
     private $_string;
+    public static $encode_nonprintable_chars = true;
 
     static function escapeChar($char)
     {
         if (! is_string($char) || strlen($char) !== 1) {
             throw new \RuntimeException("bad string variable");
         }
+
+        if (self::$encode_nonprintable_chars) {
+            switch ($char) {
+                case "\n":
+                    return '\n';
+                case "\t":
+                    return '\t';
+                case "\r":
+                    return '\r';
+                case "\v":
+                    return '\v';
+            }
+        }
+
         switch ($char) {
-            case "\n":
-                return '\n';
-            case "\t":
-                return '\t';
-            case "\r":
-                return '\r';
-            case "\v":
-                return '\v';
             case "^":
             case "$":
             case "*":
@@ -38,13 +45,17 @@ class Constant extends Token
             case "{": /* case "{" */
 				return "\\{$char}";
         }
-        if (ctype_print($char)) {
+        if (self::$encode_nonprintable_chars) {
+            if (ctype_print($char)) {
+                return $char;
+            }
+            $hex = dechex(ord($char));
+            if (strlen($hex) === 1)
+                $hex = "0{$hex}";
+            return "\\x{$hex}";
+        } else {
             return $char;
         }
-        $hex = dechex(ord($char));
-        if (strlen($hex) === 1)
-            $hex = "0{$hex}";
-        return "\\x{$hex}";
     }
 
     function __construct($string)
