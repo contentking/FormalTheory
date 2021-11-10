@@ -7,6 +7,8 @@ use FormalTheory\RegularExpression\Token;
 class Set extends Token
 {
 
+    public static $allowInverseGroups = true;
+
     private $_char_array;
 
     private $_is_positive;
@@ -91,6 +93,9 @@ class Set extends Token
             return ".";
         
         $normal_set = $this->___toString($char_array, FALSE);
+        if (!self::$allowInverseGroups) {
+            return $normal_set;
+        }
         $inverse_set = $this->___toString($char_array, TRUE);
         return strlen($normal_set) <= strlen($inverse_set) ? $normal_set : $inverse_set;
     }
