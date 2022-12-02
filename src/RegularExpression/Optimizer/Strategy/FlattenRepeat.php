@@ -27,6 +27,9 @@ class FlattenRepeat extends Strategy
 
     function qualifier(Token $token)
     {
+        if (!$token->isGreedy()) {
+            return FALSE;
+        }
         $sub_token = $token->getToken();
         if (! $sub_token instanceof Repeat) {
             return FALSE;
@@ -40,7 +43,7 @@ class FlattenRepeat extends Strategy
     function run(Token $token)
     {
         $sub_token = $token->getToken();
-        return new Repeat($sub_token->getToken(), $token->getMinNumber() * $sub_token->getMinNumber(), is_null($token->getMaxNumber()) || is_null($sub_token->getMaxNumber()) ? NULL : $token->getMaxNumber() * $sub_token->getMaxNumber());
+        return new Repeat($sub_token->getToken(), TRUE, $token->getMinNumber() * $sub_token->getMinNumber(), is_null($token->getMaxNumber()) || is_null($sub_token->getMaxNumber()) ? NULL : $token->getMaxNumber() * $sub_token->getMaxNumber());
     }
 }
 

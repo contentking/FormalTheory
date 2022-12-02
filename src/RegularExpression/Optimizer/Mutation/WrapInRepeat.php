@@ -27,7 +27,7 @@ class WrapInRepeat extends Mutation
 
     function qualifier(Token $token)
     {
-        return TRUE;
+        return $token->isGreedy();
     }
 
     function countOptions(Token $token)
@@ -38,7 +38,7 @@ class WrapInRepeat extends Mutation
     function run(Token $token, $option_index)
     {
         $pairs = self::_getCombinations();
-        return new Repeat($token, $pairs[$option_index][0], $pairs[$option_index][1]);
+        return new Repeat($token, TRUE, $pairs[$option_index][0], $pairs[$option_index][1]);
     }
 
     static private function _getCombinations()

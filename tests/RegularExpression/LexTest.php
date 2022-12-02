@@ -70,7 +70,7 @@ class LexTest extends \PhpUnit\Framework\TestCase
                             new Constant("a")
                         ), TRUE),
                         new Regex(array(
-                            new Repeat(new Constant("b"), 1, 2)
+                            new Repeat(new Constant("b"), TRUE, 1, 2)
                         ), TRUE)
                     ))
                 ), FALSE)

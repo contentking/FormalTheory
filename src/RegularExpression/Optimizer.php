@@ -80,7 +80,7 @@ class Optimizer
                     ), $token->getTokens()), FALSE);
                     break;
                 case Repeat::class:
-                    $token = new Repeat($this->safe($token->getToken()), $token->getMinNumber(), $token->getMaxNumber());
+                    $token = new Repeat($this->safe($token->getToken()), $token->isGreedy(), $token->getMinNumber(), $token->getMaxNumber());
                     break;
                 case Special::class:
                 case Constant::class:
@@ -169,7 +169,7 @@ class Optimizer
                 break;
             case Repeat::class:
                 $this->_mutate($token->getToken(), $lazy_array, function ($mutated_token) use($token, $build_full_regex) {
-                    return $build_full_regex(new Repeat($mutated_token, $token->getMinNumber(), $token->getMaxNumber()));
+                    return $build_full_regex(new Repeat($mutated_token, $token->isGreedy(), $token->getMinNumber(), $token->getMaxNumber()));
                 });
                 break;
             case Special::class:

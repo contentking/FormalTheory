@@ -64,7 +64,7 @@ class GroupRepeatsInRegex extends Strategy
             $end_offset = $sub_tokens_count - 1;
         }
         return new Regex(array_merge(array_slice($sub_tokens, 0, $start_offset), array(
-            new Repeat($sub_tokens[$start_offset]->getToken(), $min_value, $max_value)
+            new Repeat($sub_tokens[$start_offset]->getToken(), TRUE, $min_value, $max_value)
         ), array_slice($sub_tokens, $end_offset + 1)), FALSE);
     }
 }

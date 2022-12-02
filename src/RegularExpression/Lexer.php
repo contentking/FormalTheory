@@ -71,7 +71,7 @@ class Lexer
                         if ($repeat_info) {
                             list ($min, $max) = $repeat_info;
                             self::_isReadyForRepeat($tokens);
-                            $tokens[] = new Repeat(array_pop($tokens), $min, $max);
+                            $tokens[] = new Repeat(array_pop($tokens), TRUE, $min, $max);
                         } else {
                             $tokens[] = new Constant('{');
                         }
@@ -84,15 +84,23 @@ class Lexer
                         break;
                     case '*':
                         self::_isReadyForRepeat($tokens);
-                        $tokens[] = new Repeat(array_pop($tokens), 0, NULL);
+                        $isGreedy = ($this->_regex_pieces[$this->_current_offset + 1] ?? NULL) !== '?';
+                        if ($isGreedy === FALSE) {
+                            $this->_current_offset++;
+                        }
+                        $tokens[] = new Repeat(array_pop($tokens), $isGreedy, 0, NULL);
                         break;
                     case '+':
                         self::_isReadyForRepeat($tokens);
-                        $tokens[] = new Repeat(array_pop($tokens), 1, NULL);
+                        $isGreedy = ($this->_regex_pieces[$this->_current_offset + 1] ?? NULL) !== '?';
+                        if ($isGreedy === FALSE) {
+                            $this->_current_offset++;
+                        }
+                        $tokens[] = new Repeat(array_pop($tokens), $isGreedy, 1, NULL);
                         break;
                     case '?':
                         self::_isReadyForRepeat($tokens);
-                        $tokens[] = new Repeat(array_pop($tokens), 0, 1);
+                        $tokens[] = new Repeat(array_pop($tokens), TRUE, 0, 1);
                         break;
                     case '^':
                     case '$':

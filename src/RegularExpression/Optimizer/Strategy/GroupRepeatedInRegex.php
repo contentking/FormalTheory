@@ -59,7 +59,7 @@ class GroupRepeatedInRegex extends Strategy
             $end_offset = $sub_tokens_count - 1;
         }
         return new Regex(array_merge(array_slice($sub_tokens, 0, $start_offset), array(
-            new Repeat($sub_tokens[$start_offset], $end_offset - $start_offset + 1, $end_offset - $start_offset + 1)
+            new Repeat($sub_tokens[$start_offset], TRUE, $end_offset - $start_offset + 1, $end_offset - $start_offset + 1)
         ), array_slice($sub_tokens, $end_offset + 1)), FALSE);
     }
 }

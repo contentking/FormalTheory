@@ -63,7 +63,7 @@ class RemoveEnds extends Strategy
             if (! $wildcard_shared) {
                 $repeat = array_shift($sub_tokens);
                 if ($repeat->getMinNumber() > 0) {
-                    array_unshift($sub_tokens, new Repeat($repeat->getToken(), $repeat->getMinNumber(), $repeat->getMinNumber()));
+                    array_unshift($sub_tokens, new Repeat($repeat->getToken(), $repeat->isGreedy(), $repeat->getMinNumber(), $repeat->getMinNumber()));
                 }
             }
         }
@@ -72,7 +72,7 @@ class RemoveEnds extends Strategy
             array_pop($sub_tokens);
             $repeat = array_pop($sub_tokens);
             if ($repeat->getMinNumber() > 0) {
-                array_push($sub_tokens, new Repeat($repeat->getToken(), $repeat->getMinNumber(), $repeat->getMinNumber()));
+                array_push($sub_tokens, new Repeat($repeat->getToken(), $repeat->isGreedy(), $repeat->getMinNumber(), $repeat->getMinNumber()));
             }
         }
         if (! $did_change) {

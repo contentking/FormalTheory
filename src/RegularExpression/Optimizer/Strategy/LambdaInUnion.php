@@ -41,7 +41,7 @@ class LambdaInUnion extends Strategy
         $new_union = new Union(array_filter($token->getTokens(), function ($sub_token) {
             return (! $sub_token instanceof Regex) || $sub_token->getTokens();
         }));
-        return new Repeat($new_union, 0, 1);
+        return new Repeat($new_union, TRUE, 0, 1);
     }
 }
 

@@ -19,7 +19,7 @@ class TweakRepeat extends Mutation
 
     function qualifier(Token $token)
     {
-        return TRUE;
+        return $token->isGreedy();
     }
 
     function countOptions(Token $token)
@@ -30,7 +30,7 @@ class TweakRepeat extends Mutation
     function run(Token $token, $option_index)
     {
         $pairs = self::_getCombinations($token);
-        return new Repeat($token->getToken(), $pairs[$option_index][0], $pairs[$option_index][1]);
+        return new Repeat($token->getToken(), TRUE, $pairs[$option_index][0], $pairs[$option_index][1]);
     }
 
     private static function _getCombinations(Token $token)

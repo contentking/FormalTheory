@@ -763,7 +763,7 @@ EOT;
                     $new_path = new Regex(array(
                         $build_regex_from_array($prev_transitions),
                         (is_null($middle_regex) ? new Regex(array(), TRUE) : new Regex(array(
-                            new Repeat($middle_regex, 0)
+                            new Repeat($middle_regex, TRUE, 0)
                         ), TRUE)),
                         $build_regex_from_array($next_transitions)
                     ), TRUE);
@@ -791,11 +791,11 @@ EOT;
         }
         $main_pipe_regex = array();
         if (!is_null($start_to_start)) {
-            $main_pipe_regex[] = new Repeat($start_to_start, 0);
+            $main_pipe_regex[] = new Repeat($start_to_start, TRUE, 0);
         }
         $main_pipe_regex[] = $start_to_finish;
         if (!is_null($finish_to_finsh)) {
-            $main_pipe_regex[] = new Repeat($finish_to_finsh, 0);
+            $main_pipe_regex[] = new Repeat($finish_to_finsh, TRUE, 0);
         }
         $output_regex = array(
             new Special("^")

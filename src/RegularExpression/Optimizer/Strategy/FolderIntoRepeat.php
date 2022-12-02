@@ -43,7 +43,7 @@ class FolderIntoRepeat extends Strategy
             return FALSE;
         }
         foreach ($sub_tokens as $sub_token) {
-            if ($sub_token instanceof Repeat) {
+            if ($sub_token instanceof Repeat && $sub_token->isGreedy()) {
                 return TRUE;
             }
         }
@@ -122,7 +122,7 @@ class FolderIntoRepeat extends Strategy
                     $matched_before -= $extra;
                 }
                 $new_tokens = array_merge(array_slice($sub_tokens, 0, $repeat_offset - $matched_before), array(
-                    new Repeat(new Regex(array_merge(array_slice($match_array, $matched_after % $match_array_count), array_slice($match_array, 0, $matched_after % $match_array_count)), FALSE), $current_repeat->getMinNumber() + $passes, is_null($current_repeat->getMaxNumber()) ? NULL : $current_repeat->getMaxNumber() + $passes)
+                    new Repeat(new Regex(array_merge(array_slice($match_array, $matched_after % $match_array_count), array_slice($match_array, 0, $matched_after % $match_array_count)), FALSE), TRUE, $current_repeat->getMinNumber() + $passes, is_null($current_repeat->getMaxNumber()) ? NULL : $current_repeat->getMaxNumber() + $passes)
                 ), array_slice($sub_tokens, $repeat_offset + 1 + $matched_after));
                 return new Regex($new_tokens, FALSE);
             }

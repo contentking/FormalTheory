@@ -9,16 +9,19 @@ class Repeat extends Token
 
     private $_token;
 
+    private $_is_greedy;
+
     private $_first_number;
 
     private $_second_number;
 
-    function __construct($token, $first_number, $second_number = NULL)
+    function __construct($token, $is_greedy, $first_number, $second_number = NULL)
     {
         if (! is_null($second_number) && $first_number > $second_number) {
             throw new \RuntimeException("invalid repeat found");
         }
         $this->_token = $token;
+        $this->_is_greedy = $is_greedy;
         $this->_first_number = $first_number;
         $this->_second_number = $second_number;
     }
@@ -33,15 +36,15 @@ class Repeat extends Token
         if (is_null($this->_second_number)) {
             switch ($this->_first_number) {
                 case 0:
-                    return "{$token_string}*";
+                    return "{$token_string}*" . ($this->_is_greedy ? '' : '?');
                 case 1:
-                    return "{$token_string}+";
+                    return "{$token_string}+" . ($this->_is_greedy ? '' : '?');
             }
         } else 
             if ($this->_second_number === 1) {
                 switch ($this->_first_number) {
                     case 0:
-                        return "{$token_string}?";
+                        return "{$token_string}?" . ($this->_is_greedy ? '' : '?');
                     case 1:
                         return $token_string;
                 }
@@ -58,6 +61,11 @@ class Repeat extends Token
     function getToken()
     {
         return $this->_token;
+    }
+
+    function isGreedy()
+    {
+        return $this->_is_greedy;
     }
 
     function getMinNumber()
