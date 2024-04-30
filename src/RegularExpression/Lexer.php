@@ -346,6 +346,9 @@ class Lexer
         if ($last_token instanceof Special) {
             throw new LexException("unexpected repeat");
         }
+        if ($last_token === '|') {
+            throw new LexException('unexpected repeat');
+        }
     }
 }
 
