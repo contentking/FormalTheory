@@ -38,7 +38,7 @@ class Optimizer
         return $classes;
     }
 
-    function __construct(array $strategy_class_names = NULL, array $mutation_class_names = NULL)
+    function __construct(?array $strategy_class_names = NULL, ?array $mutation_class_names = NULL)
     {
         if (is_null($strategy_class_names)) {
             $strategy_class_names = self::getClassNames("Strategy");
